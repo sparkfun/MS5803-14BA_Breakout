@@ -162,7 +162,7 @@ SCLK</text>
 <text x="15.24" y="2.794" size="0.8128" layer="22" font="vector" ratio="15" rot="MR90" align="center-left">AD/
 CS</text>
 <text x="17.78" y="2.794" size="0.8128" layer="22" font="vector" ratio="15" rot="MR90" align="center-left">PS</text>
-<text x="19.558" y="0.508" size="0.8128" layer="16" font="vector" ratio="20" rot="MR270" align="center-right">v01</text>
+<text x="19.558" y="0.508" size="0.8128" layer="16" font="vector" ratio="20" rot="MR270" align="center-right">v10</text>
 </plain>
 <libraries>
 <library name="MS5803">
@@ -1539,21 +1539,6 @@ We've spent an enormous amount of time creating and checking these footprints an
 &lt;br&gt;&lt;br&gt;
 You are welcome to use this library for commercial purposes. For attribution, we ask that when you begin to sell your device using our footprint, you email us with a link to the product being sold. We want bragging rights that we helped (in a very small part) to create your 8th world wonder. We would like the opportunity to feature your device on our homepage.</description>
 <packages>
-<package name="0603">
-<wire x1="-1.473" y1="0.983" x2="1.473" y2="0.983" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="0.983" x2="1.473" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.983" x2="-1.473" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.983" x2="-1.473" y2="0.983" width="0.0508" layer="39"/>
-<wire x1="-0.356" y1="0.432" x2="0.356" y2="0.432" width="0.1016" layer="51"/>
-<wire x1="-0.356" y1="-0.419" x2="0.356" y2="-0.419" width="0.1016" layer="51"/>
-<smd name="1" x="-0.85" y="0" dx="1.1" dy="1" layer="1"/>
-<smd name="2" x="0.85" y="0" dx="1.1" dy="1" layer="1"/>
-<text x="-0.889" y="0.762" size="0.4064" layer="25" font="vector">&gt;NAME</text>
-<text x="-1.016" y="-1.143" size="0.4064" layer="27" font="vector">&gt;VALUE</text>
-<rectangle x1="-0.8382" y1="-0.4699" x2="-0.3381" y2="0.4801" layer="51"/>
-<rectangle x1="0.3302" y1="-0.4699" x2="0.8303" y2="0.4801" layer="51"/>
-<rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
-</package>
 <package name="0603-RES">
 <wire x1="-1.473" y1="0.983" x2="1.473" y2="0.983" width="0.0508" layer="39"/>
 <wire x1="1.473" y1="0.983" x2="1.473" y2="-0.983" width="0.0508" layer="39"/>
@@ -1581,7 +1566,7 @@ We've spent an enormous amount of time creating and checking these footprints an
 &lt;br&gt;&lt;br&gt;
 You are welcome to use this library for commercial purposes. For attribution, we ask that when you begin to sell your device using our footprint, you email us with a link to the product being sold. We want bragging rights that we helped (in a very small part) to create your 8th world wonder. We would like the opportunity to feature your device on our homepage.</description>
 <packages>
-<package name="SJ_3_PASTE1&amp;2&amp;3">
+<package name="PAD-JUMPER-3-NC_BY_PASTE_YES_SILK_FULL_BOX">
 <wire x1="1.27" y1="-1.016" x2="-1.27" y2="-1.016" width="0.1524" layer="21"/>
 <wire x1="1.27" y1="1.016" x2="1.524" y2="0.762" width="0.1524" layer="21" curve="-90"/>
 <wire x1="-1.524" y1="0.762" x2="-1.27" y2="1.016" width="0.1524" layer="21" curve="-90"/>
@@ -1819,6 +1804,7 @@ design rules under a new name.</description>
 <elements>
 <element name="U1" library="MS5803" package="MS5803" value="MS5803-14BA" x="10.16" y="11.43" smashed="yes" rot="R270">
 <attribute name="NAME" x="13.716" y="14.732" size="0.8128" layer="25" font="vector" ratio="15" rot="R270"/>
+<attribute name="PROD_ID" value="IC-12111" x="10.16" y="11.43" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="FRAME1" library="SparkFun-Aesthetics" package="CREATIVE_COMMONS" value="FRAME-LETTER" x="0" y="-8.89"/>
 <element name="JP1" library="SparkFun-Connectors" package="1X07" value="" x="2.54" y="1.27" smashed="yes">
@@ -1827,13 +1813,15 @@ design rules under a new name.</description>
 <element name="C1" library="SparkFun-Capacitors" package="0603-CAP" value="0.1uF" x="7.366" y="6.35" rot="R180">
 <attribute name="PROD_ID" value="CAP-00810" x="7.366" y="6.35" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
-<element name="R1" library="SparkFun-Resistors" package="0603" value="" x="5.08" y="12.954" rot="R180">
-<attribute name="PROD_ID" value="RES-07857" x="5.08" y="12.954" size="1.778" layer="27" rot="R180" display="off"/>
+<element name="R1" library="SparkFun-Resistors" package="0603-RES" value="2.2k" x="5.08" y="12.954" rot="R180">
+<attribute name="PROD_ID" value="RES-08272" x="5.08" y="12.954" size="1.778" layer="27" rot="R180" display="off"/>
+<attribute name="VALUE" value="2.2k" x="5.08" y="12.954" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
-<element name="R2" library="SparkFun-Resistors" package="0603" value="" x="5.08" y="11.176" rot="R180">
-<attribute name="PROD_ID" value="RES-07857" x="5.08" y="11.176" size="1.778" layer="27" rot="R180" display="off"/>
+<element name="R2" library="SparkFun-Resistors" package="0603-RES" value="2.2k" x="5.08" y="11.176" rot="R180">
+<attribute name="PROD_ID" value="RES-08272" x="5.08" y="11.176" size="1.778" layer="27" rot="R180" display="off"/>
+<attribute name="VALUE" value="2.2k" x="5.08" y="11.176" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
-<element name="SJ1" library="SparkFun-Passives" package="SJ_3_PASTE1&amp;2&amp;3" value="" x="2.032" y="12.192" rot="R90"/>
+<element name="SJ1" library="SparkFun-Passives" package="PAD-JUMPER-3-NC_BY_PASTE_YES_SILK_FULL_BOX" value="" x="2.032" y="12.192" rot="R90"/>
 <element name="STANDOFF1" library="SparkFun-Electromechanical" package="STAND-OFF-TIGHT" value="STAND-OFFTIGHT" x="2.54" y="7.62"/>
 <element name="STANDOFF2" library="SparkFun-Electromechanical" package="STAND-OFF-TIGHT" value="STAND-OFFTIGHT" x="17.78" y="15.24"/>
 <element name="FID1" library="SparkFun-Aesthetics" package="FIDUCIAL-1X2" value="FIDUCIAL1X2" x="19.05" y="3.81"/>
