@@ -1,0 +1,27 @@
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+MS58XXX 	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+getTemperature	KEYWORD2
+getPressure	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+MODE_LOW	LITERAL1
+MODE_STANDARD	LITERAL1
+MODE_HIGH	LITERAL1
+MODE_ULTRA	LITERAL1
+
+FAHRENHEIT	LITERAL1
+CELSIUS	LITERAL1
+
+MODE_I2C	LITERAL1
+MODE_SPI	LITERAL1
