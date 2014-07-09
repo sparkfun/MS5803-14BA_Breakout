@@ -46,21 +46,31 @@ void MS5XXX::begin(void)
 	getData(MS5XXX_C4, &c4);  //Retrieve C4 from device
 	getData(MS5XXX_C5, &c5);  //Retrieve C5 from device
 	getData(MS5XXX_C6, &c6);  //Retrieve C6 from device
+	getData(MS5XXX_C7, &c7);  //Retrieve C7 from device
+	getData(MS5XXX_C8, &c8);  //Retrieve C8 from device
 }
 	
-int16_t MS5XXX::getTemperature(temperature_units units)
+int16_t MS5XXX::getTemperature(temperature_units units, precision _precision))
 // Return a temperature reading.
 {
 	// Create variables for conversion and raw data. 
-	int16_t temperature_raw; 
-	int32_t temperature_actual; 
+	uint16_t temperature_raw; 
+	double temperature_actual; 
 	
 	// Start temperature measurement
-	sendCommand(MS5XXX_COMMAND_REG, COMMAND_GET_TEMP); 
-	// Wait 5ms for conversion to complete
-	sensorWait(5); 
+	sendCommand(CMD_ADC_CONV + CMD_ADC_D2 + precision); 
+	// Wait for conversion to complete
+	switch(precision)
+	{ 
+		case ADC_256 : sensorWait(1); break; 
+		case ADC_512 : sensorWait(3); break; 
+		case ADC_1024: sensorWait(4); break; 
+		case ADC_2048: sensorWait(6); break; 
+		case ADC_4096: sensorWait(10); break; 
+	} 
+
 	// Receive raw temp value from device.
-	getData(MS5XXX_DATA_REG, &temperature_raw);		
+	getData(CMD_ADC_READ, &temperature_raw);		
 	// Perform calculation specified in data sheet
 	temperature_actual = (((((int32_t) c1 * temperature_raw) >> 8) 
 						 + ((int32_t) c2 << 6)) * 100) >> 16;
@@ -153,7 +163,7 @@ void MS5XXX::communicationBegin()
 {
 	// If SPI is selected use SPI begin
 	if( _interface == MODE_SPI){  
-	//	SPI.begin();
+		SPI.begin();
 	}
 	// If i2c is selected for communication use i2c begin
 	else{
@@ -170,9 +180,9 @@ int8_t MS5XXX::getData(uint8_t location, uint16_t* output)
 	uint16_t _output;
 		
 	if( _interface == MODE_SPI){  
+		SPI.transfer(location);
 		byteLow = SPI.transfer(0x00);
 		byteHigh = SPI.transter(0x00);
-	
 	}
 	else {  // If i2c is selected for communication use i2c commands
 		Wire.beginTransmission(MS5XXX_I2C_ADDR); 
@@ -191,7 +201,7 @@ int8_t MS5XXX::getData(uint8_t location, uint16_t* output)
 	
 }
 
-int8_t MS5XXX::sendCommand(uint8_t location, uint8_t command)
+int8_t MS5XXX::sendCommand(uint8_t command)
 // Send command to the device.  SPI is currently unsupported in the hardware.  
 // If a release comes with hardware support this function will be updated.  
 // All reference to SPI is currently a place holder for future development.
@@ -199,13 +209,11 @@ int8_t MS5XXX::sendCommand(uint8_t location, uint8_t command)
 {
 	// If SPI is selected for communication use SPI commands
 	if(_interface == MODE_SPI){
-	//	SPI.transfer(location);
-	//	SPI.transter(command);
+		SPI.transter(command);
 	}
 	// If i2c is selected for communication use i2c commands
 	else{
 		Wire.beginTransmission(MS5XXX_I2C_ADDR); 
-		Wire.write(location);
 		Wire.write(command);
 		Wire.endTransmission();
 	}

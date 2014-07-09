@@ -45,6 +45,15 @@ enum temperature_units
 	FAHRENHEIT,
 };
 
+enum precision
+{
+	ADC_256  = 0x00,
+	ADC_512  = 0x02,
+	ADC_1024 = 0x04,
+	ADC_2048 = 0x06,
+	ADC_4096 = 0x08
+};
+
 // Device Address
 #define MS5XXX_I2C_ADDR_HIGH	0x76
 #define MS5XXX_I2C_ADDR_LOW		0x77
@@ -63,14 +72,12 @@ enum temperature_units
 #define MS5XXX_C7		0xAC
 #define MS5XXX_C8		0xAE
 
-// definitions for pressure reading commands with accuracy modes
-#define MODE_LOW		0x00
-#define MODE_STANDARD	0x01
-#define MODE_HIGH		0x10
-#define MODE_ULTRA		0x11
-
-// definition for temperature reading command
-#define COMMAND_GET_TEMP	0x03
+//Commands
+#define CMD_RESET 0x1E // ADC reset command 
+#define CMD_ADC_READ 0x00 // ADC read command 
+#define CMD_ADC_CONV 0x40 // ADC conversion command 
+#define CMD_ADC_D1 0x00 // ADC D1 conversion - Presure
+#define CMD_ADC_D2 0x10 // ADC D2 conversion - Temperature
 
 class MS5XXX
 {
@@ -80,9 +87,9 @@ class MS5XXX
 		// Collect constants from sensor for calculations
 		void begin(void);
 		// Return calculated temperature from sensor
-		int16_t getTemperature(temperature_units units);
+		int16_t getTemperature(temperature_units units, precision _precision);
 		// Return calculated pressure from sensor
-		int32_t getPressure(uint8_t precision);
+		int32_t getPressure(precision _precision);
 
 	private:
 		// Variable used to store interface selected for communication.
