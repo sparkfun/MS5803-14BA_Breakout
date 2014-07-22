@@ -1,5 +1,5 @@
 /******************************************************************************
-MS5XXX.h
+MS5XXX.cpp
 Library for MS5XXX pressure sensors.
 Casey Kuhns @ SparkFun Electronics
 6/26/2014
@@ -11,6 +11,7 @@ estimations. In this file are the functions in the MS5XXX class
 
 Resources:
 This library uses the Arduino Wire.h to complete I2C transactions.
+This library uses the Arduino SPI.h to complete SPI transactions.
 
 Development environment specifics:
 	IDE: Arduino 1.0.5
@@ -28,37 +29,88 @@ Distributed as-is; no warranty is given.
 #include <Wire.h> // Wire library is used for I2C
 #include <SPI.h> // SPI library is used for SPI.
 
-MS5XXX::MS5XXX(interface_mode interface)
-// Base library type
+MS5XXX::MS5XXX_SPI(uint8t cs_pin)
+// Base library type SPI
 {
-	_interface = interface; //set interface used for communication
+	_protocol = protocol_SPI;
+	SPI.begin(); // Arduino SPI library initializer
+	_cs_pin = cs_pin; //set interface used for communication
+	pinMode(_cs_pin, OUTPUT);
+	DigitalWrite(_cs_pin, HIGH);
 }
 
-void MS5XXX::begin(void)
+MS5XXX::MS5XXX_I2C(ms5XXX_addr address)
+// Base library type I2C
+{
+	_protocol = protocol_I2C
+	Wire.begin(); // Arduino Wire library initializer
+	_address = address; //set interface used for communication
+}
+
+
+
+
+void MS5XXX::reset_SPI(void)
+// Reset device SPI
+{
+	DigitalWrite(_cs_pin, LOW);
+	SPI.transfer(CMD_RESET);
+	sensorWait(3);
+	DigitalWrite(_cs_pin, HIGH);
+}
+
+
+uint8_t MS5XXX::begin_SPI(void)
 // Initialize library for subsequent pressure measurements
 {  
-	// Set up the communication port
-	communicationBegin();
-
-	getData(MS5XXX_C1, &c1);  //Retrieve C1 from device
-	getData(MS5XXX_C2, &c2);  //Retrieve C2 from device
-	getData(MS5XXX_C3, &c3);  //Retrieve C3 from device
-	getData(MS5XXX_C4, &c4);  //Retrieve C4 from device
-	getData(MS5XXX_C5, &c5);  //Retrieve C5 from device
-	getData(MS5XXX_C6, &c6);  //Retrieve C6 from device
-	getData(MS5XXX_C7, &c7);  //Retrieve C7 from device
-	getData(MS5XXX_C8, &c8);  //Retrieve C8 from device
+	uint8_t i, byteLow, byteHigh; 
+	
+	for(i = 0; i <= 8; i++){
+		DigitalWrite(_cs_pin, LOW);
+		SPI.transfer(CMD_PROM+(i*2));
+		byteLow = SPI.transfer(0x00);
+		byteHigh = SPI.transter(0x00);
+		coefficients[i] = (byteHigh << 8)|(byteLow);
+	}
+	
+	/*uint16_t n_rem = 0x00; // crc remainder 
+	uint8_t n_bit; 
+	n_prom[7]=(0xFF00 & (n_prom[7])); //CRC byte is replaced by 0 
+	for (i = 0; i < 16; i++) // operation is performed on bytes 
+	{ // choose LSB or MSB 
+		if (i%2==1) 
+			n_rem ^= (int16_t) ((n_prom[i>>1]) & 0x00FF); 
+		else n_rem ^= (int16_t) (n_prom[i>>1]>>8); 
+			for (n_bit = 8; n_bit > 0; n_bit--) 
+			{ 
+				if (n_rem & (0x8000)) 
+				{ 
+					n_rem = (n_rem << 1) ^ 0x3000; 
+				} 
+				else 
+				{ 
+					n_rem = (n_rem << 1); 
+				} 
+			} 
+	}	 
+	n_rem= (0x000F & (n_rem >> 12)); // // final 4-bit reminder is CRC code 
+	uint8_t crc_error; // store crc success or failure.
+	*/
+	return 0;
 }
 	
-int16_t MS5XXX::getTemperature(temperature_units units, precision _precision))
-// Return a temperature reading.
+double MS5XXX::getTemperature_SPI(temperature_units units, precision _precision))
+// Return a temperature reading in either F or C.
 {
 	// Create variables for conversion and raw data. 
-	uint16_t temperature_raw; 
+	uint32_t temperature_raw; 
 	double temperature_actual; 
+	double t; // Working variable for calculations
 	
 	// Start temperature measurement
-	sendCommand(CMD_ADC_CONV + CMD_ADC_D2 + precision); 
+	digitalWrite(_cs_pin, LOW); // Set chip select (low)
+	// Start ADC conversion
+	SPI.transfer(CMD_ADC_CONV + CMD_ADC_D2 + _precision);
 	// Wait for conversion to complete
 	switch(precision)
 	{ 
@@ -68,84 +120,44 @@ int16_t MS5XXX::getTemperature(temperature_units units, precision _precision))
 		case ADC_2048: sensorWait(6); break; 
 		case ADC_4096: sensorWait(10); break; 
 	} 
+	digitalWrite(_cs_pin, HIGH);  // Restore Chip select
+	
+	//Retrieve ADC result
+	// Temporary storage of data
+	uint8_t highByte, middleByte, LowByte; 
 
-	// Receive raw temp value from device.
-	getData(CMD_ADC_READ, &temperature_raw);		
-	// Perform calculation specified in data sheet
-	temperature_actual = (((((int32_t) c1 * temperature_raw) >> 8) 
-						 + ((int32_t) c2 << 6)) * 100) >> 16;
+	digitalWrite(_cs_pin, LOW); // Set chip select (low)
+	SPI.transfer(CMD_ADC_READ); // Send ADC read command.
+	//Shift in 3 bytes of value
+	highByte = SPT.transfer(0x00);
+	middleByte = SPT.transfer(0x00);
+	lowByte = SPT.transfer(0x00);
+	digitalWrite(_cs_pin, HIGH);  // Restore Chip select
 
+	//Combine bytes into raw value
+	temperature_raw = (highByte << 16)|(middleByte << 8)|LowByte;  
+	
+	//Now that we have a raw temperature, let's compute our actual.
+	t = temperature_raw - coefficient[5] << 8;
+	temperature_actual = (2000 + (dT * coefficient[6]) >> 23)/100;
 
 	// If Fahrenheit is selected return the temperature converted to F
 	if(units == FAHRENHEIT){
-		temperature_actual = ((temperature_actual * 9) / 5) + 3200;
+		temperature_actual = ((temperature_actual * 9) / 5) + 32;
 		return temperature_actual;
 		}
 		
 	// If Celsius is selected return the temperature converted to C	
 	else if(units == CELSIUS){
-		return (int16_t) temperature_actual;
+		return temperature_actual;
 	}
 }
 
-int32_t MS5XXX::getPressure(uint8_t commanded_precision)
+
+double MS5XXX::getPressure_SPI(uint8_t commanded_precision)
 // Return a pressure reading.
 {
-	// Create variables for conversion and raw data. 
-	int16_t temperature_raw; 
-	uint16_t pressure_raw;
-
-	// Start temperature measurement
-	sendCommand(MS5XXX_COMMAND_REG, COMMAND_GET_TEMP); 
-	// Wait 5ms for conversion to complete
-	sensorWait(5); 
-	// Receive raw temp value from device.
-	getData(MS5XXX_DATA_REG, &temperature_raw);		
-	
-	// Load measurement noise level into command along with start command bit.
-	commanded_precision = (commanded_precision << 3)|(0x01); 
-	// Start pressure measurement
-	sendCommand(MS5XXX_COMMAND_REG, commanded_precision); 
-	
-	//Select delay time based on precision level selected.
-	switch(commanded_precision){
-		case MODE_LOW:
-		{	
-			sensorWait(5); //  Wait 5ms for conversion to complete
-			break;
-		}
-		case MODE_STANDARD:
-		{
-			sensorWait(11); //  Wait 11 ms for conversion to complete
-			break;
-		}
-		case MODE_HIGH:{
-			sensorWait(19); //  Wait 19 ms for conversion to complete
-			break;
-		}
-		case MODE_ULTRA:{
-			sensorWait(67); //  Wait 67 ms for conversion to complete
-			break;
-		}
-	};
-	
-	//  Receive raw pressure value from device.
-	getData(MS5XXX_DATA_REG, (int16_t*)&pressure_raw);	
-	
-	// Create variables to hold calculated pressure and working variables for 
-	// calculations.
-	int32_t pressure_actual, s, o; 
-
-	// Calculations come from application note. 
-	s = (((((int32_t) c5 * temperature_raw)  >> 15) * temperature_raw) >> 19)
-			+ c3 + (((int32_t) c4 * temperature_raw) >> 17); 
-			
-	o = (((((int32_t) c8 * temperature_raw) >> 15) * temperature_raw) >> 4) 
-			+ (((int32_t) c7 * temperature_raw) >> 3) + ((int32_t)c6 * 0x4000);
-			
-	pressure_actual = (s * pressure_raw + o) >> 14;
-
-	return pressure_actual;
+	return 0;
 }
 
 void MS5XXX::sensorWait(uint8_t time)
@@ -153,68 +165,3 @@ void MS5XXX::sensorWait(uint8_t time)
 {
 	delay(time);
 };
-
-void MS5XXX::communicationBegin()
-// Initialize the communication protocol used.  SPI is currently unsupported in 
-// the hardware.  If a release comes with hardware support this file will be 
-// updated.  All reference to SPI is currently a place holder for future 
-// development.
-// This can be modified to work outside of Arduino based MCU's
-{
-	// If SPI is selected use SPI begin
-	if( _interface == MODE_SPI){  
-		SPI.begin();
-	}
-	// If i2c is selected for communication use i2c begin
-	else{
-		Wire.begin();
-	}
-
-}
-
-int8_t MS5XXX::getData(uint8_t location, uint16_t* output)
-// Receive data from the device.  
-// This can be modified to work outside of Arduino based MCU's  
-{
-	uint8_t byteLow, byteHigh;
-	uint16_t _output;
-		
-	if( _interface == MODE_SPI){  
-		SPI.transfer(location);
-		byteLow = SPI.transfer(0x00);
-		byteHigh = SPI.transter(0x00);
-	}
-	else {  // If i2c is selected for communication use i2c commands
-		Wire.beginTransmission(MS5XXX_I2C_ADDR); 
-		Wire.write(location);
-		Wire.endTransmission();    // Transmit data
-		Wire.requestFrom(MS5XXX_I2C_ADDR,2);
-
-		while(Wire.available()){
-			byteLow = Wire.read(); // receive low byte 
-			byteHigh = Wire.read(); // receive high byte
-		}
-	}
-	
-	_output = (byteHigh << 8)|(byteLow);
-	*output = _output;
-	
-}
-
-int8_t MS5XXX::sendCommand(uint8_t command)
-// Send command to the device.  SPI is currently unsupported in the hardware.  
-// If a release comes with hardware support this function will be updated.  
-// All reference to SPI is currently a place holder for future development.
-// This can be modified to work outside of Arduino based MCU's
-{
-	// If SPI is selected for communication use SPI commands
-	if(_interface == MODE_SPI){
-		SPI.transter(command);
-	}
-	// If i2c is selected for communication use i2c commands
-	else{
-		Wire.beginTransmission(MS5XXX_I2C_ADDR); 
-		Wire.write(command);
-		Wire.endTransmission();
-	}
-}
