@@ -16,6 +16,7 @@ Repository Contents
 
 * **/Fritzing** - Fritzing Example wiring images
 * **/Hardware** - All Eagle design files (.brd, .sch)
+* **/Libraries - All Arduino libraries and board examples
 * **/Production** - production panel files
 * **/Software** - Demo program files for hookup guide
 
