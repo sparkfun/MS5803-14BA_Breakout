@@ -53,10 +53,11 @@ uint8_t MS5803::begin(void)
 		uint8_t highByte = Wire.read(); 
 		uint8_t lowByte = Wire.read();
 		coefficient[i] = (highByte << 8)|lowByte;
-		Serial.print("C");
-		Serial.print(i);
-		Serial.print("= ");
-		Serial.println(coefficient[i]);
+	// Uncomment below for debugging output.
+	//	Serial.print("C");
+	//	Serial.print(i);
+	//	Serial.print("= ");
+	//	Serial.println(coefficient[i]);
 	}
 
 	return 0;
