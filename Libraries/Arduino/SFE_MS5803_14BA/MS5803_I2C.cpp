@@ -5,9 +5,11 @@ Casey Kuhns @ SparkFun Electronics
 6/26/2014
 https://github.com/sparkfun/MS5803-14BA_Breakout
 
-The MS58XX MS57XX and MS56XX by Measurement Specialties is a low cost I2C barometric pressure
+The MS58XX MS57XX and MS56XX by Measurement Specialties is a low cost I2C pressure
 sensor.  This sensor can be used in weather stations and for altitude
-estimations. In this file are the functions in the MS5803 class
+estimations. It can also be used underwater for water depth measurements. 
+
+In this file are the functions in the MS5803 class
 
 Resources:
 This library uses the Arduino Wire.h to complete I2C transactions.
@@ -27,9 +29,6 @@ Distributed as-is; no warranty is given.
 #include <Wire.h> // Wire library is used for I2C
 #include "MS5803_I2C.h"
 
-float _temperature_actual;
-float _pressure_actual;
-
 MS5803::MS5803(ms5803_addr address)
 // Base library type I2C
 {
@@ -43,7 +42,6 @@ void MS5803::reset(void)
    sendCommand(CMD_RESET);
    sensorWait(3);
 }
-
 
 uint8_t MS5803::begin(void)
 // Initialize library for subsequent pressure measurements
@@ -68,24 +66,29 @@ float MS5803::getTemperature(temperature_units units, precision _precision)
 // Return a temperature reading in either F or C.
 {
 	getMeasurements(_precision);
-	
+	float temperature_reported;
 	// If Fahrenheit is selected return the temperature converted to F
 	if(units == FAHRENHEIT){
-		_temperature_actual = (((_temperature_actual) * 9) / 5) + 32;
-		return _temperature_actual;
+		temperature_reported = _temperature_actual / 100;
+		temperature_reported = (((temperature_reported) * 9) / 5) + 32;
+		return temperature_reported;
 		}
 		
 	// If Celsius is selected return the temperature converted to C	
-	else if(units == CELSIUS){
-		return _temperature_actual;
+	else {
+		temperature_reported = _temperature_actual / 100;
+		return temperature_reported;
 	}
 }
 
 float MS5803::getPressure(precision _precision)
-// Return a pressure reading.
+// Return a pressure reading units Pa.
 {
-	
-	return 0;
+	getMeasurements(_precision);
+	float pressure_reported;
+	pressure_reported = _pressure_actual;
+	pressure_reported = pressure_reported / 10;
+	return pressure_reported;
 }
 
 void MS5803::getMeasurements(precision _precision)
@@ -97,8 +100,9 @@ void MS5803::getMeasurements(precision _precision)
 	
 	
 	//Create Variables for calculations
-		int32_t temp_calc;
+	int32_t temp_calc;
 	int32_t pressure_calc;
+	
 	int32_t dT;
 		
 	//Now that we have a raw temperature, let's compute our actual.
@@ -135,7 +139,7 @@ void MS5803::getMeasurements(precision _precision)
 	// Now bring it all together to apply offsets 
 	
 	OFF = ((int64_t)coefficient[2] << 16) + (((coefficient[4] * (int64_t)dT)) >> 7);
-	SENS = ((int64_t)coefficient[2] << 15) + (((coefficient[3] * (int64_t)dT)) >> 8);
+	SENS = ((int64_t)coefficient[1] << 15) + (((coefficient[3] * (int64_t)dT)) >> 8);
 	
 	temp_calc = temp_calc - T2;
 	OFF = OFF - OFF2;
@@ -143,10 +147,11 @@ void MS5803::getMeasurements(precision _precision)
 
 	// Now lets calculate the pressure
 	
-	_temperature_actual = temp_calc ;
 
 	pressure_calc = (((SENS * pressure_raw) / 2097152 ) - OFF) / 32768;
-	TODO: float _pressure_actual = pressure_calc ; // 10;// pressure_calc;
+	
+	_temperature_actual = temp_calc ;
+	_pressure_actual = pressure_calc ; // 10;// pressure_calc;
 	
 
 }

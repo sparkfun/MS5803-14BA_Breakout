@@ -5,9 +5,11 @@ Casey Kuhns @ SparkFun Electronics
 6/26/2014
 https://github.com/sparkfun/MS5803-14BA_Breakout
 
-The MS58XX MS57XX and MS56XX by Measurement Specialties is a low cost I2C barometric pressure
+The MS58XX MS57XX and MS56XX by Measurement Specialties is a low cost I2C pressure
 sensor.  This sensor can be used in weather stations and for altitude
-estimations. 
+estimations. It can also be used underwater for water depth measurements. 
+
+In this file are the function prototypes in the MS5803 class 
 
 Resources:
 This library uses the Arduino Wire.h to complete I2C transactions.
@@ -27,7 +29,7 @@ Distributed as-is; no warranty is given.
 #ifndef MS5803_I2C_h
 #define MS5803_I2C_h
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 // Define units for conversions. 
 enum temperature_units
@@ -36,6 +38,7 @@ enum temperature_units
 	FAHRENHEIT,
 };
 
+// Define measurement type.
 enum measurement
 {	
 	PRESSURE = 0x00,
@@ -56,7 +59,7 @@ enum precision
 enum ms5803_addr
 {
 	ADDRESS_HIGH = 0x76,
-	ADDRESS_LOW	= 0x77
+	ADDRESS_LOW  = 0x77
 };
 
 //Commands
@@ -80,9 +83,11 @@ class MS5803
 		float getPressure(precision _precision);
 
 	private:
-
+		
+		int32_t _temperature_actual;
+		int32_t _pressure_actual;
 	
-		int8_t _address; 		// Variable used to store I2C device address.
+		ms5803_addr _address; 		// Variable used to store I2C device address.
 		uint16_t coefficient[8];// Coefficients;
 		
 		void getMeasurements(precision _precision);
