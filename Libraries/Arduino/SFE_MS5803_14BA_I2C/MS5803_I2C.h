@@ -36,6 +36,12 @@ enum temperature_units
 	FAHRENHEIT,
 };
 
+enum measurement
+{	
+	PRESSURE = 0x00,
+	TEMPERATURE = 0x10
+};
+
 // Define constants for Conversion precision
 enum precision
 {
@@ -53,28 +59,21 @@ enum ms5803_addr
 	ADDRESS_LOW	= 0x77
 };
 
-// Register addresses for operations
-#define MS5803_COMMAND_REG	0xF1
-#define MS5803_DATA_REG		0xF5
-
-
 //Commands
-#define CMD_RESET 0x1E // ADC reset command 
-#define CMD_PROM 0xA0 // Coefficient location
+#define CMD_RESET 0x1E // reset command 
 #define CMD_ADC_READ 0x00 // ADC read command 
-
 #define CMD_ADC_CONV 0x40 // ADC conversion command 
-#define CMD_ADC_D1 0x00 // ADC D1 conversion - Presure
-#define CMD_ADC_D2 0x10 // ADC D2 conversion - Temperature
+
+#define CMD_PROM 0xA0 // Coefficient location
+
 
 class MS5803
 {
 	public:	
 		MS5803(ms5803_addr address); 
-		//Reset device
-		void reset(void);
-		// Collect constants from sensor for calculations
-		uint8_t begin(void);
+		void reset(void);	 //Reset device
+		uint8_t begin(void); // Collect coefficients from sensor
+		
 		// Return calculated temperature from sensor
 		float getTemperature(temperature_units units, precision _precision);
 		// Return calculated pressure from sensor
@@ -82,20 +81,16 @@ class MS5803
 
 	private:
 
-		// Variable used to store I2C device address.
-		int8_t _address; 
-
-		// Coefficients filled in with MS5803();
-		uint16_t coefficient[8];
+	
+		int8_t _address; 		// Variable used to store I2C device address.
+		uint16_t coefficient[8];// Coefficients;
 		
-		// General I2C send command function
-		void sendCommand(uint8_t command);
-		// Retrieve ADC result
-		uint32_t getADCconversion(void);
-		// General delay function.  If delay() is not supported on other 
-		// platforms it may be necessary to modify this function.
-		// The units for sensorWait() are in ms. 
-		void sensorWait(uint8_t time);
+		void getMeasurements(precision _precision);
+
+		void sendCommand(uint8_t command);	// General I2C send command function
+		uint32_t getADCconversion(measurement _measurement, precision _precision);	// Retrieve ADC result
+
+		void sensorWait(uint8_t time); // General delay function see: delay()
 };
 
 #endif
