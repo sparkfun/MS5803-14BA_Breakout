@@ -1,4 +1,4 @@
-SparkFun <PRODUCT NAME> Libraries
+SparkFun MS5803-14BA Libraries
 =================================
 
 Libraries for use in different environments. 
@@ -7,7 +7,6 @@ Libraries for use in different environments.
 Directory Contents
 -------------------
 * **/Arduino** - [Arduino IDE](http://www.arduino.cc/en/Main/Software) libraries
-* **/Spark.io** - [Spark.io IDE](https://build.spark.io/build) libraries
 
 
 License Information
@@ -20,7 +19,6 @@ Distributed as-is; no warranty is given.
 
 - Your friends at SparkFun.
 
-_Any collaboration credit should appear here._
 
 
 
@@ -28,4 +26,4 @@ Update Library Instructions:
 ----------------------------
 To get the most up-to-date version of the library, you must run the following git subtree commands. 
 
-$git subtree pull -P Libraries/<COMPILER NAME> --squash <product library repo URL> master
+$git subtree pull -P Libraries/Arduino --squash https://github.com/sparkfun/SparkFun_MS5803-14BA_Breakout_Arduino_Library.git master
