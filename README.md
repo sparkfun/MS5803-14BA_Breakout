@@ -27,6 +27,7 @@ Documentation
 
 Version History
 ---------------
+* [V_H1.0](https://github.com/sparkfun/MS5803-14BA_Breakout/tree/V_H1.0) &mdash; Removing old libraries. Adding links to formal libs in readme.
 * [V_H1.0_L1.1.1](https://github.com/sparkfun/MS5803-14BA_Breakout/tree/V_H1.0_L1.1.1) &mdash; Squashed library bugs that truncated data
 * [V_H1.0_L1.1.0](https://github.com/sparkfun/MS5803-14BA_Breakout/tree/V_H1.0_L1.1.0) &mdash; Updated library to Arduino 1.6.4
 * [v10](https://github.com/sparkfun/MS5803-14BA_Breakout/tree/v1.0) &mdash; Initial Release
