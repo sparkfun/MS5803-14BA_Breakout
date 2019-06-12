@@ -1,6 +1,6 @@
-SparkFun MS5803-14BA Library
+SparkFun MAG3110 Breakout Board Arduino Library
 =================================
 
 The following libraries are available:
 
-* [SparkFun MS5803-14BA Arduino Library](https://github.com/sparkfun/SparkFun_MS5803-14BA_Breakout_Arduino_Library)
+* [SparkFun MAG3110 Breakout Board Arduino Library](https://github.com/sparkfun/SparkFun_MAG3110_Breakout_Board_Arduino_Library)
